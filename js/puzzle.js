@@ -95,6 +95,7 @@ function checkIfSolved() {
 
     if (isSolved) {
         alert('拼图完成！恭喜！');
+        document.getElementById('result-container').innerText = '收集成功！'; // 显示收集成功的信息
         document.getElementById('next-game').style.display = 'block'; // 显示前往下一个游戏的按钮
     }
 }
