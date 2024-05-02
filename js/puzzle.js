@@ -15,6 +15,56 @@ function addDragAndDropHandlers(piece) {
     piece.addEventListener('dragend', handleDragEnd, false);
 }
 
+function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragSrcEl = this;
+    this.style.opacity = '0.4';
+
+    // 记录触摸起始点相对于元素左上角的偏移
+    offsetX = touch.clientX - this.getBoundingClientRect().left;
+    offsetY = touch.clientY - this.getBoundingClientRect().top;
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();  // 阻止屏幕滚动行为
+    if (!dragSrcEl) return;
+    const touch = e.touches[0];
+
+    // 更新拼图块位置
+    dragSrcEl.style.left = (touch.clientX - offsetX) + 'px';
+    dragSrcEl.style.top = (touch.clientY - offsetY) + 'px';
+}
+
+function handleTouchEnd(e) {
+    if (dragSrcEl) {
+        dragSrcEl.style.opacity = '1.0';
+    }
+    dragSrcEl = null;  // 清除拖拽源元素引用
+    checkIfSolved();  // 检查是否解决拼图
+}
+
+// 修改 handleDrop 函数以适应非触摸设备
+function handleDrop(e) {
+    if (dragSrcEl && dragSrcEl !== this) {
+        // 交换位置逻辑可以保留，或根据需要修改
+        const thisParent = this.parentNode;
+        if (!thisParent) return;
+
+        thisParent.insertBefore(dragSrcEl, this.nextSibling);
+        thisParent.insertBefore(this, dragSrcEl);
+
+        addDragAndDropHandlers(dragSrcEl);
+        addDragAndDropHandlers(this);
+    }
+    if (dragSrcEl) {
+        dragSrcEl.style.opacity = '1.0';
+    }
+    dragSrcEl = null;  // 清除拖拽源元素引用
+    checkIfSolved();  // 检查是否解决拼图
+}
+
+
 function handleDragStart(e) {
     dragSrcEl = this;
     if (e.type === 'touchstart') {
@@ -48,23 +98,6 @@ function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     return false;
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    const target = e.target || e; // 兼容触摸事件中的调用
-    if (dragSrcEl !== target) {
-        const thisParent = target.parentNode;
-        if (!thisParent) return;
-
-        // 交换元素
-        thisParent.insertBefore(dragSrcEl, target.nextSibling);
-        thisParent.insertBefore(target, dragSrcEl);
-
-        addDragAndDropHandlers(dragSrcEl);
-        addDragAndDropHandlers(target);
-    }
 }
 
 function handleDragEnd(e) {
