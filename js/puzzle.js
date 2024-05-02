@@ -109,6 +109,7 @@ function initPuzzle(imagePath, size) {
 }
 
 function checkIfSolved() {
+    const tolerance = 1; // 可以根据需要调整容忍范围
     const pieces = Array.from(puzzleContainer.children);
     const isSolved = pieces.every((piece, index) => {
         const rect = piece.getBoundingClientRect();
@@ -116,8 +117,11 @@ function checkIfSolved() {
         const col = index % gridSize;
         const expectedX = col * piece.offsetWidth;
         const expectedY = row * piece.offsetHeight;
-        return rect.left - puzzleContainer.offsetLeft === expectedX && 
-               rect.top - puzzleContainer.offsetTop === expectedY;
+        
+        const deltaX = Math.abs(rect.left - puzzleContainer.offsetLeft - expectedX);
+        const deltaY = Math.abs(rect.top - puzzleContainer.offsetTop - expectedY);
+
+        return deltaX <= tolerance && deltaY <= tolerance;
     });
 
     if (isSolved) {
@@ -125,3 +129,4 @@ function checkIfSolved() {
         document.getElementById('result-container').innerText = '拼图成功！';
     }
 }
+
