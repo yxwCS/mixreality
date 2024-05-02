@@ -1,38 +1,64 @@
-document.addEventListener('DOMContentLoaded', function() {
+const gridSize = 4;
+
+function initPuzzle(imagePath) {
     const puzzleContainer = document.getElementById('puzzle-container');
-    const imgSrc = 'C:\\Users\\RecklessNoLove\\Desktop\\1.png'; // 替换成你的图片路径
-    const gridSize = 4; // 4x4 的网格
-    let emptyIndex = 15; // 初始空格位置
+    puzzleContainer.innerHTML = '';
+    puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
 
-    function initPuzzle() {
-        for (let i = 0; i < gridSize * gridSize; i++) {
-            const piece = document.createElement('div');
-            piece.classList.add('puzzle-piece');
-            if (i === emptyIndex) {
-                piece.classList.add('empty');
-            } else {
-                piece.style.backgroundImage = `url('${imgSrc}')`;
-                const x = -(i % gridSize) * 100;
-                const y = -Math.floor(i / gridSize) * 100;
-                piece.style.backgroundPosition = `${x}px ${y}px`;
-            }
-            piece.addEventListener('click', () => movePiece(i));
-            puzzleContainer.appendChild(piece);
-        }
+    let pieces = [];
+    for (let i = 0; i < gridSize * gridSize; i++) {
+        pieces.push(i);
     }
 
-    function movePiece(index) {
-        const diff = Math.abs(index - emptyIndex);
-        if (diff === 1 || diff === gridSize) {
-            puzzleContainer.children[emptyIndex].style.backgroundImage =
-                puzzleContainer.children[index].style.backgroundImage;
-            puzzleContainer.children[emptyIndex].style.backgroundPosition =
-                puzzleContainer.children[index].style.backgroundPosition;
-            puzzleContainer.children[index].classList.add('empty');
-            puzzleContainer.children[emptyIndex].classList.remove('empty');
-            emptyIndex = index;
-        }
+    pieces.sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < pieces.length; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'puzzle-piece';
+        piece.style.width = `${puzzleContainer.offsetWidth / gridSize}px`;
+        piece.style.height = `${puzzleContainer.offsetHeight / gridSize}px`;
+        piece.style.backgroundImage = `url('${imagePath}')`;
+        const x = -(pieces[i] % gridSize) * (400 / gridSize);
+        const y = -Math.floor(pieces[i] / gridSize) * (400 / gridSize);
+        piece.style.backgroundPosition = `${x}px ${y}px`;
+        piece.addEventListener('dragstart', handleDragStart, false);
+        piece.addEventListener('dragover', handleDragOver, false);
+        piece.addEventListener('drop', handleDrop, false);
+        piece.addEventListener('dragend', handleDragEnd, false);
+        puzzleContainer.appendChild(piece);
+    }
+}
+
+function handleDragStart(e) {
+    dragSrcEl = this;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
     }
 
-    initPuzzle();
+    if (dragSrcEl !== this) {
+        dragSrcEl.innerHTML = this.innerHTML;
+        this.innerHTML = e.dataTransfer.getData('text/html');
+    }
+    return false;
+}
+
+function handleDragEnd(e) {
+    checkIfSolved();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initPuzzle('path/to/your/image.jpg');
 });
