@@ -1,4 +1,6 @@
 let dragSrcEl = null; // 用于存储正在拖动的元素
+let gridSize; // 使网格大小在全局范围内可访问
+let puzzleContainer; // 使拼图容器在全局范围内可访问
 
 // 添加拖拽事件处理器到拼图块
 function addDragAndDropHandlers(piece) {
@@ -45,8 +47,9 @@ function handleDragEnd(e) {
 }
 
 // 初始化拼图游戏
-function initPuzzle(imagePath, gridSize) {
-    const puzzleContainer = document.getElementById('puzzle-container');
+function initPuzzle(imagePath, size) {
+    gridSize = size;
+    puzzleContainer = document.getElementById('puzzle-container');
     puzzleContainer.innerHTML = '';
     puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`; // 设置网格列
 
