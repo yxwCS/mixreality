@@ -1,8 +1,14 @@
-let dragSrcEl = null; 
-let gridSize; 
-let puzzleContainer; 
+let dragSrcEl = null;
+let gridSize;
+let puzzleContainer;
 
 function addDragAndDropHandlers(piece) {
+    // 添加触摸事件
+    piece.addEventListener('touchstart', handleDragStart, false);
+    piece.addEventListener('touchmove', handleTouchMove, false);
+    piece.addEventListener('touchend', handleDragEnd, false);
+
+    // 原有的鼠标事件
     piece.addEventListener('dragstart', handleDragStart, false);
     piece.addEventListener('dragover', handleDragOver, false);
     piece.addEventListener('drop', handleDrop, false);
@@ -11,8 +17,31 @@ function addDragAndDropHandlers(piece) {
 
 function handleDragStart(e) {
     dragSrcEl = this;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.outerHTML);
+    if (e.type === 'touchstart') {
+        var touch = e.touches[0];
+        e.dataTransfer = {
+            setData: function(type, val) {
+                e.dataTransfer[type] = val;
+            },
+            dropEffect: 'move',
+            effectAllowed: 'move'
+        };
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    } else {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    }
+}
+
+function handleTouchMove(e) {
+    e.preventDefault(); // 防止滚动屏幕
+    if (e.touches.length == 1) {
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (target && target !== dragSrcEl) {
+            handleDrop({ target: target, preventDefault: () => {}, stopPropagation: () => {} });
+        }
+    }
 }
 
 function handleDragOver(e) {
@@ -22,22 +51,26 @@ function handleDragOver(e) {
 }
 
 function handleDrop(e) {
-    e.stopPropagation();
     e.preventDefault();
-    if (dragSrcEl !== this) {
-        const thisParent = this.parentNode;
+    e.stopPropagation();
+    const target = e.target || e; // 兼容触摸事件中的调用
+    if (dragSrcEl !== target) {
+        const thisParent = target.parentNode;
         if (!thisParent) return;
 
-        // Swap elements
-        thisParent.insertBefore(dragSrcEl, this.nextSibling);
-        thisParent.insertBefore(this, dragSrcEl);
+        // 交换元素
+        thisParent.insertBefore(dragSrcEl, target.nextSibling);
+        thisParent.insertBefore(target, dragSrcEl);
 
         addDragAndDropHandlers(dragSrcEl);
-        addDragAndDropHandlers(this);
+        addDragAndDropHandlers(target);
     }
 }
 
 function handleDragEnd(e) {
+    if (e.type === 'touchend') {
+        handleDrop(e.changedTouches[0]);
+    }
     checkIfSolved();
 }
 
@@ -63,7 +96,7 @@ function initPuzzle(imagePath, size) {
         }
     }
 
-    // Shuffle array to randomize pieces
+    // 打乱数组以随机化片段
     while (tempArray.length) {
         const index = Math.floor(Math.random() * tempArray.length);
         pieces.push(tempArray.splice(index, 1)[0]);
@@ -89,6 +122,6 @@ function checkIfSolved() {
 
     if (isSolved) {
         alert('拼图完成！恭喜！');
-        document.getElementById('result-container').innerText = '收集成功！';
+        document.getElementById('result-container').innerText = '拼图成功！';
     }
 }
