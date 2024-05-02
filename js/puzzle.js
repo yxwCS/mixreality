@@ -134,21 +134,21 @@ function shuffleArray(array) {
 }
 
 
-// function checkIfSolved() {
-//     const pieces = Array.from(puzzleContainer.children);
-//     const isSolved = pieces.every((piece, index) => {
-//         const rect = piece.getBoundingClientRect();
-//         const row = Math.floor(index / gridSize);
-//         const col = index % gridSize;
-//         const expectedX = col * piece.offsetWidth;
-//         const expectedY = row * piece.offsetHeight;
-//         return rect.left - puzzleContainer.offsetLeft === expectedX && 
-//                rect.top - puzzleContainer.offsetTop === expectedY;
-//     });
+function checkIfSolved() {
+    const pieces = Array.from(puzzleContainer.children);
+    const isSolved = pieces.every((piece, index) => {
+        const rect = piece.getBoundingClientRect();
+        const row = Math.floor(index / gridSize);
+        const col = index % gridSize;
+        const expectedX = col * piece.offsetWidth;
+        const expectedY = row * piece.offsetHeight;
+        return rect.left - puzzleContainer.offsetLeft === expectedX && 
+               rect.top - puzzleContainer.offsetTop === expectedY;
+    });
 
-//     if (isSolved) {
-//         alert('拼图完成！恭喜！');
-//         // document.getElementById('nextStep').style.display = 'block'; // 显示下一步提示
+    if (isSolved) {
+        alert('拼图完成！恭喜！');
+        // document.getElementById('nextStep').style.display = 'block'; // 显示下一步提示
 
-//     }
-// }
+    }
+}
