@@ -59,29 +59,27 @@ function handleDragEnd(e) {
 }
 
 // 初始化拼图游戏
-function initPuzzle(imagePath, size) {
-    gridSize = size;
+function initPuzzle(imagePath, gridSize) {
+    gridSize = size;  // 设置网格大小
     puzzleContainer = document.getElementById('puzzle-container');
-    puzzleContainer.innerHTML = '';
-    puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`; // 设置网格列
+    puzzleContainer.innerHTML = '';  // 清空旧的拼图块
+    puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;  // 设置网格列
 
-    let pieces = [];
-    for (let i = 0; i < gridSize * gridSize; i++) {
-        pieces.push(i);
-    }
-    pieces.sort(() => Math.random() - 0.5); // 打乱顺序
+    const pieceWidth = puzzleContainer.offsetWidth / gridSize;
+    const pieceHeight = puzzleContainer.offsetHeight / gridSize;
 
-    for (let i = 0; i < pieces.length; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'puzzle-piece';
-        piece.style.width = `${puzzleContainer.offsetWidth / gridSize}px`;
-        piece.style.height = `${puzzleContainer.offsetHeight / gridSize}px`;
-        piece.style.backgroundImage = `url('${imagePath}')`;
-        const x = -(i % gridSize) * (puzzleContainer.offsetWidth / gridSize);
-        const y = -Math.floor(i / gridSize) * (puzzleContainer.offsetHeight / gridSize);
-        piece.style.backgroundPosition = `${x}px ${y}px`;
-        puzzleContainer.appendChild(piece);
-        addDragAndDropHandlers(piece);
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.style.width = `${pieceWidth}px`;
+            piece.style.height = `${pieceHeight}px`;
+            piece.style.backgroundImage = `url('${imagePath}')`;
+            piece.style.backgroundSize = `${puzzleContainer.offsetWidth}px ${puzzleContainer.offsetHeight}px`;
+            piece.style.backgroundPosition = `-${j * pieceWidth}px -${i * pieceHeight}px`;
+            puzzleContainer.appendChild(piece);
+            addDragAndDropHandlers(piece);
+        }
     }
 }
 
