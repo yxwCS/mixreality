@@ -13,6 +13,8 @@
     height: 100%;
     transition: background 0.3s;
     cursor: pointer;
+    position: absolute;  
+    border: 1px solid #ddd;  
 }
 
 .empty {
