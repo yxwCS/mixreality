@@ -26,20 +26,32 @@ function handleDragOver(e) {
 
 // 处理拖放事件
 function handleDrop(e) {
-    e.stopPropagation(); // 停止事件冒泡
+    e.stopPropagation();
     e.preventDefault();
     if (dragSrcEl !== this) {
-        let draggedHTML = dragSrcEl.outerHTML;
-        let thisHTML = this.outerHTML;
-        dragSrcEl.outerHTML = thisHTML;
-        this.outerHTML = draggedHTML;
+        const thisParent = this.parentNode;
+        const dragSrcParent = dragSrcEl.parentNode;
 
-        // 重新添加事件监听器，因为 outerHTML 替换会移除之前的事件监听器
+        // 如果父节点不存在，就不执行交换
+        if (!thisParent || !dragSrcParent) return;
+
+        // Capture the nodes to replace
+        const nextSibling = dragSrcEl.nextSibling === this ? dragSrcEl : dragSrcEl.nextSibling;
+
+        // Swap elements
+        thisParent.insertBefore(dragSrcEl, this);
+        if (nextSibling) {
+            dragSrcParent.insertBefore(this, nextSibling);
+        } else {
+            dragSrcParent.appendChild(this);
+        }
+
+        // Re-add event listeners
         addDragAndDropHandlers(dragSrcEl);
         addDragAndDropHandlers(this);
     }
-    return false;
 }
+
 
 // 处理拖拽结束的事件
 function handleDragEnd(e) {
