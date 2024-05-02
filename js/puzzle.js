@@ -148,7 +148,7 @@ function checkIfSolved() {
 
     if (isSolved) {
         alert('拼图完成！恭喜！');
-        // document.getElementById('nextStep').style.display = 'block'; // 显示下一步提示
+        document.getElementById('result-container').innerText = '收集成功！';
 
     }
 }
