@@ -59,7 +59,7 @@ function handleDragEnd(e) {
 }
 
 // 初始化拼图游戏
-function initPuzzle(imagePath, gridSize) {
+function initPuzzle(imagePath, size) {
     gridSize = size;  // 设置网格大小
     puzzleContainer = document.getElementById('puzzle-container');
     puzzleContainer.innerHTML = '';  // 清空旧的拼图块
