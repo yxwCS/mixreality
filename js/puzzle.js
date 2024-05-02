@@ -74,7 +74,7 @@ function handleDragEnd(e) {
     checkIfSolved();
 }
 
-function initPuzzle(imagePath, size) {
+function initPuzzle(imagePath, size, shuffleLevel = 1) {
     gridSize = size;
     puzzleContainer = document.getElementById('puzzle-container');
     puzzleContainer.innerHTML = '';
@@ -82,7 +82,16 @@ function initPuzzle(imagePath, size) {
 
     let pieces = [];
     let tempArray = [];
+    let positionArray = [];
 
+    // 初始化位置数组
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            positionArray.push({ row: i, col: j });
+        }
+    }
+
+    // 创建拼图片段
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             const piece = document.createElement('div');
@@ -92,21 +101,38 @@ function initPuzzle(imagePath, size) {
             piece.style.backgroundImage = `url('${imagePath}')`;
             piece.style.backgroundSize = `${puzzleContainer.offsetWidth}px ${puzzleContainer.offsetHeight}px`;
             piece.style.backgroundPosition = `-${j * (puzzleContainer.offsetWidth / gridSize)}px -${i * (puzzleContainer.offsetHeight / gridSize)}px`;
-            tempArray.push(piece);
+            tempArray.push({ piece: piece, originalRow: i, originalCol: j });
         }
     }
 
-    // 打乱数组以随机化片段
-    while (tempArray.length) {
-        const index = Math.floor(Math.random() * tempArray.length);
-        pieces.push(tempArray.splice(index, 1)[0]);
-    }
+    // 打乱片段
+    tempArray.forEach(item => {
+        let possiblePositions = positionArray.filter(pos => {
+            return Math.abs(pos.row - item.originalRow) <= shuffleLevel && Math.abs(pos.col - item.originalCol) <= shuffleLevel;
+        });
+        if (possiblePositions.length) {
+            const randIndex = Math.floor(Math.random() * possiblePositions.length);
+            const position = possiblePositions.splice(randIndex, 1)[0];
+            pieces.push({ piece: item.piece, row: position.row, col: position.col });
+            positionArray = positionArray.filter(pos => pos !== position);
+        }
+    });
 
-    pieces.forEach(piece => {
-        puzzleContainer.appendChild(piece);
-        addDragAndDropHandlers(piece);
+    // 将打乱后的片段添加到容器
+    pieces.forEach(item => {
+        item.piece.style.order = item.row * gridSize + item.col;
+        puzzleContainer.appendChild(item.piece);
+        addDragAndDropHandlers(item.piece);
     });
 }
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 
 function checkIfSolved() {
     const pieces = Array.from(puzzleContainer.children);
